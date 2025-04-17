@@ -1,5 +1,7 @@
-from django.http import HttpResponse, HttpResponseNotFound, Http404
-from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.urls import reverse
+
 
 def index(request):
     return HttpResponse("Страница приложения women")
@@ -9,12 +11,14 @@ def categories(request, cat_id):
 
 def categories_by_slug(request, cat_slug):
     if request.GET:
-        print(request.GET)
+        data = [f"{key}={item}" for key, value in request.GET.lists() for item in value]
+        return HttpResponse(f'Переданные параметры - {"|".join(data)}<p>{cat_slug} категория</p>')
     return HttpResponse(f"{cat_slug} категория")
 
 def archive(request, year):
     if year > 2023:
-        raise Http404()
+        uri = reverse('cats', args=('music', ))
+        return HttpResponseRedirect(uri)
 
     return HttpResponse(f"Архив по годам - {year}")
 
