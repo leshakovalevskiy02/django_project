@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.template.defaultfilters import add
+from women.templatetags.custom_filters import add_email_to_string
 
 menu = ["О сайте", "Добавить статью", "Обратная связь", "Войти"]
 
@@ -31,7 +32,11 @@ def index(request):
     return render(request, "women/index.html", context=data)
 
 def about(request):
-    return render(request, 'women/about.html', context={"title": "О сайте"})
+    data = {
+        "title": "О сайте",
+        "mail": add_email_to_string("my_site", "gmail.com")
+    }
+    return render(request, 'women/about.html', context=data)
 
 def categories(request, cat_id):
     return HttpResponse(f"Категория {cat_id} <h1> blabla </h1>")

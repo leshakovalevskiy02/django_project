@@ -1,3 +1,4 @@
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +7,9 @@
 </head>
 <body>
 <p>{{ menu }}</p>
+<p>{{ "MyStrINg"|swapcase }}</p>
+<p>Моя почта - {{ "lesha_kovalevskiy"|email:"mail.ru" }}</p>
+<p>Почта сайта - {{ mail }}</p>
 <h1>{{ title }}</h1>
 </body>
 </html>
