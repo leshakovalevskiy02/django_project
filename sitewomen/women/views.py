@@ -3,7 +3,11 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from women.templatetags.custom_filters import add_email_to_string
 
-menu = ["О сайте", "Добавить статью", "Обратная связь", "Войти"]
+menu = [{'title': "О сайте", 'url_name': 'about'},
+        {'title': "Добавить статью", 'url_name': 'add_page'},
+        {'title': "Обратная связь", 'url_name': 'contact'},
+        {'title': "Войти", 'url_name': 'login'}
+]
 
 data_db = [
     {'id': 1, 'title': 'Анджелина Джоли', 'content': 'Биография Анджелины Джоли', 'is_published': True},
@@ -27,21 +31,17 @@ def about(request):
     }
     return render(request, 'women/about.html', context=data)
 
-def categories(request, cat_id):
-    return HttpResponse(f"Категория {cat_id} <h1> blabla </h1>")
+def show_post(request, post_id):
+    return HttpResponse(f"Отображение поста - {post_id}")
 
-def categories_by_slug(request, cat_slug):
-    if request.GET:
-        data = [f"{key}={item}" for key, value in request.GET.lists() for item in value]
-        return HttpResponse(f'Переданные параметры - {"|".join(data)}<p>{cat_slug} категория</p>')
-    return HttpResponse(f"{cat_slug} категория")
+def addpage(request):
+    return HttpResponse("Добавить статью")
 
-def archive(request, year):
-    if year > 2023:
-        uri = reverse('cats', args=('music', ))
-        return HttpResponseRedirect(uri)
+def contact(request):
+    return HttpResponse("Связаться с нами")
 
-    return HttpResponse(f"Архив по годам - {year}")
+def login(request):
+    return HttpResponse("Регистрация")
 
 def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
