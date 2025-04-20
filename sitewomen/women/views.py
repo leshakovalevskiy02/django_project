@@ -2,6 +2,7 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpRespons
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.template.defaultfilters import add
 
 menu = ["О сайте", "Добавить статью", "Обратная связь", "Войти"]
 
@@ -24,7 +25,8 @@ def index(request):
         "tpl": (1, 2, "abc", True),
         "set": {1, 2, 3, 4, 5},
         "dict": {"key_1": "value_1", "key_2": "value_2"},
-        "obj": MyClass(10, 20)
+        "obj": MyClass(10, 20),
+        "value": add(30.7, 50)
     }
     return render(request, "women/index.html", context=data)
 
