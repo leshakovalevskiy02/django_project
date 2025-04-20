@@ -5,16 +5,19 @@
     <title>{{ title }}</title>
 </head>
 <body>
-<p>{{ unknow_var|default:"nothing" }}</p>
-<p>{{ menu|first }} {{ menu|last }}</p>
-<p>{{ float|add:"50" }}</p>
-<p>{{ tpl.2.0 }} {{ tpl|length }}</p>
-<p>{{ set|join:" | " }}</p>
-<p>{{ dict.key_1|capfirst }}{{ dict.key_2 }}</p>
-<p>{{ obj.x }} {{ obj.y }} {{ obj.show_coords }}</p>
-<p>{{ "The mAin PagE"|slugify }}</p>
-<p>{{ value }}</p>
-<h1>{{ title|upper|cut:" " }}</h1>
-<p>Известные женщины</p>
+<p>{{ menu|join:" | " }}</p>
+<h1>{{ title }}</h1>
+
+<ul>
+    {% for post in posts %}
+        <li>
+            <h2>{{ post.title }}</h2>
+            <p>{{ post.content }}</p>
+            {% if not forloop.last %}
+                <hr>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
 </body>
 </html>
