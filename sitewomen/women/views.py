@@ -1,7 +1,6 @@
 from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from women.templatetags.custom_filters import add_email_to_string
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
@@ -27,7 +26,7 @@ def index(request):
 def about(request):
     data = {
         "title": "О сайте",
-        "mail": add_email_to_string("my_site", "gmail.com")
+        "menu": menu,
     }
     return render(request, 'women/about.html', context=data)
 
