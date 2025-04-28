@@ -1,5 +1,6 @@
 from django import template
 import women.views as views
+from women.models import Category
 
 
 register = template.Library()
@@ -12,9 +13,5 @@ def get_categories():
 
 @register.inclusion_tag("women/list_categories.html")
 def show_categories(cat_selected=0):
-    cats = views.cats_db
+    cats = Category.objects.all()
     return {"cats": cats, "cat_selected": cat_selected}
-
-@register.simple_tag()
-def get_default_title(title="Без заголовка"):
-    return title
