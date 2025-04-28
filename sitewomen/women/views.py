@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from .models import Women
+from .models import Women, Category
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
@@ -38,7 +38,7 @@ def show_post(request, post_slug):
         'title': post.title,
         'menu': menu,
         'post': post,
-        'cat_selected': 1,
+        'cat_selected': post.cat.pk,
     }
 
     return render(request, "women/post.html", context=data)
@@ -52,14 +52,17 @@ def contact(request):
 def login(request):
     return HttpResponse("Регистрация")
 
-def show_category(request, cat_id):
+def show_category(request, cat_slug):
+    category = get_object_or_404(klass=Category, slug=cat_slug)
     data = {
-        "title": "Отображение по рубрикам",
+        "title": f"Рубрика: {category.name}",
         "menu": menu,
-        "posts": Women.published.all(),
-        "cat_selected": cat_id,
+        "posts": Women.published.filter(cat__slug=cat_slug),
+        "cat_selected": category.pk,
     }
     return render(request, "women/index.html", context=data)
+
+
 
 def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
