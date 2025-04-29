@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from taggit.managers import TaggableManager
 
 
 class PublishedManager(models.Manager):
@@ -22,6 +23,7 @@ class Women(models.Model):
     cat = models.ForeignKey("Category", on_delete=models.PROTECT, related_name="posts",
                             related_query_name="where_posts")
     tags = models.ManyToManyField('TagPost', blank=True, related_name="tags")
+    tags_taggle = TaggableManager()
 
     objects = models.Manager()
     published = PublishedManager()
@@ -56,3 +58,6 @@ class TagPost(models.Model):
 
     def __str__(self):
         return self.tag
+
+    def get_absolute_url(self):
+        return reverse("tag", args=(self.slug, ))

@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from .models import Women, Category
+from .models import Women, Category, TagPost
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
@@ -58,3 +58,14 @@ def show_category(request, cat_slug):
 
 def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
+
+
+def show_posts_by_tag(request, tag_slug):
+    tag = get_object_or_404(klass=TagPost, slug=tag_slug)
+    data = {
+        "title": f"Тег - {tag.tag}",
+        "menu": menu,
+        "posts": Women.published.filter(tags__slug=tag_slug),
+        "cat_selected": None,
+    }
+    return render(request, "women/index.html", context=data)
