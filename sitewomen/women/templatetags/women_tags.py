@@ -6,9 +6,9 @@ from women.models import Category
 register = template.Library()
 
 
-@register.simple_tag(name='getcats')
-def get_categories():
-    return views.cats_db
+# @register.simple_tag(name='getcats')
+# def get_categories():
+#     return views.cats_db
 
 
 @register.inclusion_tag("women/list_categories.html")

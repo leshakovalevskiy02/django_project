@@ -10,12 +10,6 @@ menu = [{'title': "О сайте", 'url_name': 'about'},
 ]
 
 
-cats_db = [
-    {'id': 1, 'name': 'Актрисы'},
-    {'id': 2, 'name': 'Певицы'},
-    {'id': 3, 'name': 'Спортсменки'},
-]
-
 def index(request):
     data = {
         "title": "Главная страница",
@@ -40,7 +34,6 @@ def show_post(request, post_slug):
         'post': post,
         'cat_selected': post.cat.pk,
     }
-
     return render(request, "women/post.html", context=data)
 
 def addpage(request):
@@ -61,7 +54,6 @@ def show_category(request, cat_slug):
         "cat_selected": category.pk,
     }
     return render(request, "women/index.html", context=data)
-
 
 
 def page_not_found(request, exception):
