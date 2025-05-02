@@ -1,6 +1,7 @@
 from django import template
 import women.views as views
-from women.models import Category, TagPost
+from women.models import Category, TagPost, Women
+from django.db.models import Count
 
 
 register = template.Library()
@@ -13,11 +14,15 @@ register = template.Library()
 
 @register.inclusion_tag("women/list_categories.html")
 def show_categories(cat_selected=0):
-    cats = Category.objects.all()
+    cats = Category.objects.filter(where_posts__is_published=Women.Status.PUBLISHED).annotate(
+                                            total=Count("where_posts")).filter(total__gt=0)
+
     return {"cats": cats, "cat_selected": cat_selected}
 
 
 @register.inclusion_tag("women/list_tags.html")
 def show_tags():
-    tags = TagPost.objects.all()
+    tags = TagPost.objects.filter(tags__is_published=Women.Status.PUBLISHED).annotate(
+                                        total=Count("tags")).filter(total__gt=0)
+
     return {"tags": tags}
