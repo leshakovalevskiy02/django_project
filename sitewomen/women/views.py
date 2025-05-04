@@ -14,7 +14,7 @@ def index(request):
     data = {
         "title": "Главная страница",
         "menu": menu,
-        "posts": Women.published.all(),
+        "posts": Women.published.select_related("cat"),
         "cat_selected": 0,
     }
     return render(request, "women/index.html", context=data)
@@ -50,7 +50,7 @@ def show_category(request, cat_slug):
     data = {
         "title": f"Рубрика: {category.name}",
         "menu": menu,
-        "posts": Women.published.filter(cat__slug=cat_slug),
+        "posts": Women.published.filter(cat__slug=cat_slug).select_related("cat"),
         "cat_selected": category.pk,
     }
     return render(request, "women/index.html", context=data)
@@ -65,7 +65,7 @@ def show_posts_by_tag(request, tag_slug):
     data = {
         "title": f"Тег - {tag.tag}",
         "menu": menu,
-        "posts": Women.published.filter(tags__slug=tag_slug),
+        "posts": Women.published.filter(tags__slug=tag_slug).select_related("cat"),
         "cat_selected": None,
     }
     return render(request, "women/index.html", context=data)
