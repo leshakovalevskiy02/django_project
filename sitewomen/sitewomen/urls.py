@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from . import admin
 from django.contrib import admin
 from django.urls import path, include
 from women import views
@@ -25,6 +26,3 @@ urlpatterns = [
 ]
 
 handler404 = views.page_not_found
-
-admin.site.site_header = "Панель администрирования"
-admin.site.index_title = "Известные женщины мира"
