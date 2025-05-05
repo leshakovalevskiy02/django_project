@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
+from django.template.defaultfilters import slugify
 from taggit.managers import TaggableManager
+from unidecode import unidecode
 
 
 class PublishedManager(models.Manager):
@@ -45,6 +47,10 @@ class Women(models.Model):
     def get_absolute_url(self):
         return reverse("post", args=(self.slug, ))
 
+    def save(self, *args, **kwargs):
+        self.slug = slugify(unidecode(self.title))
+        super().save(*args, **kwargs)
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100, db_index=True, verbose_name="Категория")
@@ -59,6 +65,10 @@ class Category(models.Model):
     class Meta:
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
+        
+    def save(self, *args, **kwargs):
+        self.slug = slugify(unidecode(self.name))
+        super().save(*args,  **kwargs)
 
 class TagPost(models.Model):
     tag = models.CharField(max_length=100, db_index=True)
@@ -69,11 +79,23 @@ class TagPost(models.Model):
 
     def get_absolute_url(self):
         return reverse("tag", args=(self.slug, ))
+    
+    def save(self, *args, **kwargs):
+        self.slug = slugify(unidecode(self.tag))
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Тег"
+        verbose_name_plural = "Теги"
 
 class Husband(models.Model):
-    name = models.CharField(max_length=100)
-    age = models.IntegerField(null=True)
+    name = models.CharField(max_length=100, verbose_name="Имя мужчины")
+    age = models.IntegerField(null=True, verbose_name="Возраст")
     m_count = models.IntegerField(blank=True, default=0)
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "Мужчина"
+        verbose_name_plural = "Мужчины"
