@@ -1,0 +1,11 @@
+#header, .module caption, .module h2{
+    background: #3F4137;
+}
+
+div.breadcrumbs {
+    background: #6A6E5D;
+}
+
+.module a.section, .module h2, div.breadcrumbs a{
+    color: #ECECA4;
+}
