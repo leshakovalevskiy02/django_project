@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <form action="" method="post">
+        {% csrf_token %}
+        <p><label for="name">Ваше имя: </label><input type="text" id="name" name="field_name"></p>
+        <p><label for="email">Ваш email: </label><input type="email" id="email" name="field_email"></p>
+        <p><label for="comment">Ваш комментарий: </label>
+            <textarea id="comment" name="field_comment" rows="10" cols="30"></textarea>
+        </p>
+        <p><button type="submit">Отправить</button></p>
+    </form>
+{% endblock %}

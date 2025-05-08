@@ -37,10 +37,18 @@ def show_post(request, post_slug):
     return render(request, "women/post.html", context=data)
 
 def addpage(request):
-    return HttpResponse("Добавить статью")
+    data = {
+        'title': "Добавление статьи",
+        'menu': menu,
+    }
+    return render(request, "women/addpage.html", context=data)
 
 def contact(request):
-    return HttpResponse("Связаться с нами")
+    data = {
+        'title': "Форма для обратной связи",
+        'menu': menu,
+    }
+    return render(request, "women/contact.html", context=data)
 
 def login(request):
     return HttpResponse("Регистрация")
