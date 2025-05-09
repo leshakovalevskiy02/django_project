@@ -2,7 +2,8 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpRespons
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .models import Women, Category, TagPost
-from .forms import AddPostForm
+from .forms import AddPostForm, ContactForm
+from django.db.models.query import QuerySet
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
@@ -41,7 +42,21 @@ def addpage(request):
     if request.method == "POST":
         form = AddPostForm(request.POST)
         if form.is_valid():
-            print(form.cleaned_data)
+            try:
+                new_woman = Women()
+                query_sets_dct = {}
+                for key, value in form.cleaned_data.items():
+                    if type(value) != QuerySet:
+                        setattr(new_woman, key, value)
+                    else:
+                        query_sets_dct[key] = value
+                new_woman.save()
+                for key, value in query_sets_dct.items():
+                    obj = getattr(new_woman, key)
+                    obj.set(value)
+                return redirect("home")
+            except:
+                form.add_error(None, "Ошибка добавления поста")
     else:
         form = AddPostForm()
     data = {
@@ -52,9 +67,15 @@ def addpage(request):
     return render(request, "women/addpage.html", context=data)
 
 def contact(request):
+    if request.method == "POST":
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            print(form.cleaned_data)
+            return redirect("home")
     data = {
         'title': "Форма для обратной связи",
         'menu': menu,
+        "form": ContactForm()
     }
     return render(request, "women/contact.html", context=data)
 
