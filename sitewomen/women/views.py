@@ -2,8 +2,9 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpRespons
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .models import Women, Category, TagPost
-from .forms import AddPostForm, ContactForm
-from django.db.models.query import QuerySet
+from .forms import AddPostForm, ContactForm, UploadFilesForm
+import uuid
+from os.path import splitext
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
@@ -21,10 +22,26 @@ def index(request):
     }
     return render(request, "women/index.html", context=data)
 
+def handle_uploaded_file(f):
+    file_name, file_extension = splitext(f.name)
+    pk = str(uuid.uuid4())
+    unique_name = file_name + pk + file_extension
+    with open(f"files/{unique_name}", "wb+") as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
 def about(request):
+    if request.method == "POST":
+        form = UploadFilesForm(request.POST, request.FILES)
+        if form.is_valid():
+            handle_uploaded_file(form.cleaned_data["upload_file"])
+    else:
+        form = UploadFilesForm()
+
     data = {
         "title": "О сайте",
         "menu": menu,
+        "form": form
     }
     return render(request, 'women/about.html', context=data)
 
