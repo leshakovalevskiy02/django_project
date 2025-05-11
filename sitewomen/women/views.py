@@ -72,10 +72,12 @@ def contact(request):
         if form.is_valid():
             print(form.cleaned_data)
             return redirect("home")
+    else:
+        form = ContactForm()
     data = {
         'title': "Форма для обратной связи",
         'menu': menu,
-        "form": ContactForm()
+        "form": form
     }
     return render(request, "women/contact.html", context=data)
 
