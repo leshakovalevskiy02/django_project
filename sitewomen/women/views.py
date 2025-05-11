@@ -42,21 +42,8 @@ def addpage(request):
     if request.method == "POST":
         form = AddPostForm(request.POST)
         if form.is_valid():
-            try:
-                new_woman = Women()
-                query_sets_dct = {}
-                for key, value in form.cleaned_data.items():
-                    if type(value) != QuerySet:
-                        setattr(new_woman, key, value)
-                    else:
-                        query_sets_dct[key] = value
-                new_woman.save()
-                for key, value in query_sets_dct.items():
-                    obj = getattr(new_woman, key)
-                    obj.set(value)
-                return redirect("home")
-            except:
-                form.add_error(None, "Ошибка добавления поста")
+            form.save()
+            return redirect("home")
     else:
         form = AddPostForm()
     data = {

@@ -4,6 +4,7 @@ from django.template.defaultfilters import slugify
 from taggit.managers import TaggableManager
 from unidecode import unidecode
 from django.core.validators import MinLengthValidator
+from .validators import RussianValidator
 
 class PublishedManager(models.Manager):
     def get_queryset(self):
@@ -16,7 +17,11 @@ class Women(models.Model):
         PUBLISHED = 1, "Опубликовано"
 
 
-    title = models.CharField(max_length=255, verbose_name="Заголовок")
+    title = models.CharField(max_length=255, verbose_name="Заголовок",
+                             validators=[
+                                 MinLengthValidator(5, message="Слишком короткий заголовок"),
+                                 RussianValidator()
+                             ])
     slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="Слаг", validators=[
                                MinLengthValidator(5, message="Минимум 5 символов")
                            ])
@@ -49,9 +54,10 @@ class Women(models.Model):
     def get_absolute_url(self):
         return reverse("post", args=(self.slug, ))
 
-    # def save(self, *args, **kwargs):
-    #     self.slug = slugify(unidecode(self.title))
-    #     super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(unidecode(self.title))
+        super().save(*args, **kwargs)
 
 
 class Category(models.Model):
