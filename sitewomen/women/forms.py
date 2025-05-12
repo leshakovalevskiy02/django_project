@@ -1,5 +1,5 @@
 from django import forms
-from .models import Women
+from .models import Women, UploadFiles
 
 
 class AddPostForm(forms.ModelForm):
@@ -7,7 +7,7 @@ class AddPostForm(forms.ModelForm):
 
     class Meta:
         model = Women
-        fields = ["title", "slug", "content", "is_published", "cat", "husband", "tags"]
+        fields = ["title", "slug", "content", "photo", "is_published", "cat", "husband", "tags"]
         widgets = {
             "title": forms.TextInput(attrs={'class': 'form-input'}),
             "content": forms.Textarea(attrs={"cols": 50, "rows": 5}),
@@ -32,5 +32,7 @@ class ContactForm(forms.Form):
     comment = forms.CharField(widget=forms.Textarea(attrs={"cols": "50", "rows": "5"}), label="Ваш комментарий")
 
 
-class UploadFilesForm(forms.Form):
-    upload_file = forms.ImageField(label="Загрузить изображение")
+class UploadFilesForm(forms.ModelForm):
+    class Meta:
+        model = UploadFiles
+        fields = ["image"]
