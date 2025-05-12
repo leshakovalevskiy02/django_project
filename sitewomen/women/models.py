@@ -31,7 +31,7 @@ class Women(models.Model):
                               verbose_name="Фото")
     thumbnail = ImageSpecField(
         source='photo',
-        processors=[ResizeToFill(400, 400)],
+        processors=[ResizeToFill(300, 300)],
         format='JPEG',
         options={'quality': 80}
     )

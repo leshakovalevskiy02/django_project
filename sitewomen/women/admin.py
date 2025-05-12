@@ -1,4 +1,6 @@
 from django.contrib import admin, messages
+from django.utils.safestring import mark_safe
+
 from .models import Women, Category, TagPost, Husband
 from django.db.models.functions import Length
 from django.db.models import Count, Q
@@ -70,12 +72,12 @@ class AgeFilter(admin.SimpleListFilter):
 @admin.register(Women)
 class WomenAdmin(admin.ModelAdmin):
     # exclude = ("tags", "tags_taggle", "husband", "is_published")
-    fields = ("title", "slug", "content", "cat", "husband", "tags")
-    readonly_fields = ("slug", )
+    fields = ("title", "slug", "content", "photo", "post_photo",  "cat", "husband", "tags")
+    readonly_fields = ("slug", "post_photo")
     # prepopulated_fields = {"slug": ("title", )}
     # filter_vertical = ("tags", )
     filter_horizontal = ("tags", )
-    list_display = ("title", "time_create", "is_published", "cat", "brief_info")
+    list_display = ("title", "time_create", "post_photo", "is_published", "cat", "brief_info")
     list_display_links = ("title", )
     ordering = ("-time_create", "title")
     list_editable = ("is_published", )
@@ -83,10 +85,17 @@ class WomenAdmin(admin.ModelAdmin):
     actions = ("set_published", "set_draft")
     search_fields = ("title__startswith", "cat__name")
     list_filter = ("cat__name", "is_published", MarriedFilter, ContentFilter)
+    save_on_top = True
 
     @admin.display(description="Краткое описание", ordering=Length("content"))
     def brief_info(self, women: Women):
         return f"Описание {len(women.content)} символов."
+
+    @admin.display(description="Изображение")
+    def post_photo(self, women: Women):
+        if women.thumbnail:
+            return mark_safe(f"<img src='{women.thumbnail.url}' width=50>")
+        return "Без фото"
 
     @admin.action(description="Опубликовать выбранные записи")
     def set_published(self, request, queryset):
