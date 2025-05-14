@@ -5,12 +5,32 @@ from .models import Women, Category, TagPost
 from .forms import AddPostForm, ContactForm, UploadFilesForm
 import uuid
 from os.path import splitext
+from django.views import View
+from django.views.generic.base import TemplateView
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
         {'title': "Обратная связь", 'url_name': 'contact'},
         {'title': "Войти", 'url_name': 'login'}
 ]
+
+
+class HomePage(TemplateView):
+    template_name = "women/index.html"
+    extra_context = {
+            "title": "Главная страница",
+            "menu": menu,
+            "posts": Women.published.select_related("cat"),
+            "cat_selected": 0,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Главная страница'
+        context['menu'] = menu
+        context['posts'] = Women.published.all().select_related('cat')
+        context['cat_selected'] = int(self.request.GET.get('cat_id', 0))
+        return context
 
 
 def index(request):
@@ -69,6 +89,30 @@ def addpage(request):
         "form": form
     }
     return render(request, "women/addpage.html", context=data)
+
+
+class AddPage(View):
+    def get(self, request):
+        form = AddPostForm()
+        data = {
+            'title': "Добавление статьи",
+            'menu': menu,
+            "form": form
+        }
+        return render(request, "women/addpage.html", context=data)
+
+    def post(self, request):
+        form = AddPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+        data = {
+            'title': "Добавление статьи",
+            'menu': menu,
+            "form": form
+        }
+        return render(request, "women/addpage.html", context=data)
+
 
 def contact(request):
     if request.method == "POST":
