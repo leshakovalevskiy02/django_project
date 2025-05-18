@@ -6,8 +6,7 @@ from .forms import AddPostForm, ContactForm, UploadFilesForm
 import uuid
 from os.path import splitext
 from django.views import View
-from django.views.generic.base import TemplateView
-from django.views.generic.list import ListView
+from django.views.generic import TemplateView, ListView, DetailView
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
@@ -64,15 +63,33 @@ def about(request):
     }
     return render(request, 'women/about.html', context=data)
 
-def show_post(request, post_slug):
-    post = get_object_or_404(klass=Women, slug=post_slug)
-    data = {
-        'title': post.title,
-        'menu': menu,
-        'post': post,
-        'cat_selected': post.cat.pk,
-    }
-    return render(request, "women/post.html", context=data)
+# def show_post(request, post_slug):
+#     post = get_object_or_404(klass=Women, slug=post_slug)
+#     data = {
+#         'title': post.title,
+#         'menu': menu,
+#         'post': post,
+#         'cat_selected': post.cat.pk,
+#     }
+#     return render(request, "women/post.html", context=data)
+
+
+class ShowPost(DetailView):
+    template_name = "women/post.html"
+    context_object_name = "post"
+    slug_url_kwarg = "post_slug"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        post = context["post"]
+        context["title"] = post.title
+        context["menu"] = menu
+        context['cat_selected'] = post.cat.pk
+        return context
+
+    def get_object(self, queryset=None):
+        slug = self.kwargs[self.slug_url_kwarg]
+        return get_object_or_404(Women.published, slug=slug)
 
 # def addpage(request):
 #     if request.method == "POST":
@@ -131,15 +148,15 @@ def contact(request):
 def login(request):
     return HttpResponse("Регистрация")
 
-def show_category(request, cat_slug):
-    category = get_object_or_404(klass=Category, slug=cat_slug)
-    data = {
-        "title": f"Рубрика: {category.name}",
-        "menu": menu,
-        "posts": Women.published.filter(cat__slug=cat_slug).select_related("cat"),
-        "cat_selected": category.pk,
-    }
-    return render(request, "women/index.html", context=data)
+# def show_category(request, cat_slug):
+#     category = get_object_or_404(klass=Category, slug=cat_slug)
+#     data = {
+#         "title": f"Рубрика: {category.name}",
+#         "menu": menu,
+#         "posts": Women.published.filter(cat__slug=cat_slug).select_related("cat"),
+#         "cat_selected": category.pk,
+#     }
+#     return render(request, "women/index.html", context=data)
 
 class ShowCategory(ListView):
     template_name = "women/index.html"
