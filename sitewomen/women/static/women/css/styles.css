@@ -30,10 +30,19 @@ img.img-article-left.thumb {
 	height: auto;
 }
 
-p.link-read-post {
-	text-align: right;
+.flex {
+    display: flex;
 }
-p.link-read-post a {
+
+.flex>div{
+    padding-right: 20px;
+}
+
+p.link-read-post, p.link-edit-post, p.link-delete-post {
+	text-align: right;
+	display: flex;
+}
+p.link-read-post a, p.link-edit-post a, p.link-delete-post a {
 	padding: 10px;
 	min-width: 100px;
 	background: #333671;

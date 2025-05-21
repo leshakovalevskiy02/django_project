@@ -15,8 +15,17 @@
     {% autoescape off %}
 	{{ p.content|linebreaks|truncatewords:40 }}
     {% endautoescape %}
-			<div class="clear"></div>
-			<p class="link-read-post"><a href="{{ p.get_absolute_url }}">Читать пост</a></p>
+			<div class="clear flex">
+				<div class="block1">
+					<p class="link-read-post"><a href="{{ p.get_absolute_url }}">Читать пост</a></p>
+				</div>
+				<div class="block2">
+					<p class="link-edit-post"><a href="{% url 'edit_post' p.slug %}">Редактировать пост</a></p>
+				</div>
+				<div class="block3">
+					<p class="link-delete-post"><a href="{% url 'delete_post' p.slug %}">Удалить пост</a></p>
+				</div>
+			</div>
 			</li>
 	{% endfor %}
 </ul>

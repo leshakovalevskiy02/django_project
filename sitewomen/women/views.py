@@ -5,8 +5,7 @@ from .models import Women, Category, TagPost
 from .forms import AddPostForm, ContactForm, UploadFilesForm
 import uuid
 from os.path import splitext
-from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView, FormView
+from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
@@ -49,17 +48,14 @@ def handle_uploaded_file(f):
             destination.write(chunk)
 
 
-class About(FormView):
+class About(CreateView):
     form_class = UploadFilesForm
     extra_context = {
         "title": "О сайте",
         "menu": menu
     }
     template_name = 'women/about.html'
-
-    def form_valid(self, form):
-        form.save()
-        return redirect("home")
+    success_url = reverse_lazy("home")
 
 
 # def show_post(request, post_slug):
@@ -90,33 +86,37 @@ class ShowPost(DetailView):
         slug = self.kwargs[self.slug_url_kwarg]
         return get_object_or_404(Women.published, slug=slug)
 
-# def addpage(request):
-#     if request.method == "POST":
-#         form = AddPostForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             form.save()
-#             return redirect("home")
-#     else:
-#         form = AddPostForm()
-#     data = {
-#         'title': "Добавление статьи",
-#         'menu': menu,
-#         "form": form
-#     }
-#     return render(request, "women/addpage.html", context=data)
 
-class AddPage(FormView):
+class AddPage(CreateView):
+    # model = Women
+    # fields = ["title", "slug", "content", "photo", "is_published", "cat", "husband", "tags"]
     template_name = "women/addpage.html"
     form_class = AddPostForm
-    # success_url = reverse_lazy("home")
+    success_url = reverse_lazy("home")
     extra_context = {
         'title': "Добавление статьи",
         'menu': menu
     }
 
-    def form_valid(self, form):
-        form.save()
-        return redirect("home")
+class UpdatePage(UpdateView):
+    template_name = "women/addpage.html"
+    model = Women
+    fields = ["title", "content", "photo", "is_published", "cat"]
+    success_url = reverse_lazy("home")
+    extra_context = {
+        'title': "Редактирование статьи",
+        'menu': menu
+    }
+
+class DeletePage(DeleteView):
+    template_name = "women/delete_post.html"
+    success_url = reverse_lazy("home")
+    extra_context = {
+        'title': "Удаление статьи",
+        'menu': menu
+    }
+    context_object_name = "post"
+    model = Women
 
 
 class Contact(FormView):
