@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% for obj in page_obj.object_list %}
+    <p>{{ obj.title }}</p>
+    <img src="{{ obj.thumbnail.url }}" alt="">
+{% endfor %}
+{% if page_obj.number != 1 %}
+    <a href="?page=1">1</a>
+{% endif %}
+{% if page_obj.has_previous and page_obj.previous_page_number != 1 %}
+    <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+{% endif %}
+{{ page_obj.number }}
+{% if page_obj.has_next and page_obj.next_page_number != page_obj.paginator.num_pages %}
+    <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+{% endif %}
+{% if page_obj.number != page_obj.paginator.num_pages %}
+    <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+{% endif %}
+{% endblock %}
