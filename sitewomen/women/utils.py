@@ -1,11 +1,11 @@
 from django.views.generic.base import ContextMixin
 
+
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
         {'title': "Обратная связь", 'url_name': 'contact'},
-        {'title': "Войти", 'url_name': 'login'}
+        {'title': "Войти", 'url_name': 'users:login'}
 ]
-
 
 class DataMixin(ContextMixin):
     extra_context = {}
@@ -24,5 +24,4 @@ class DataMixin(ContextMixin):
         if "paginator" in context:
             context["elided_page_range"] = context["paginator"].get_elided_page_range(
                         context["page_obj"].number, on_each_side=2, on_ends=1)
-        print(context)
         return context

@@ -75,15 +75,6 @@ class Contact(DataMixin, FormView):
         return redirect("home")
 
 
-def login(request):
-    contact_list = Women.published.all()
-    paginator = Paginator(contact_list, 3)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    return render(request, "women/paginator.html", context=
-            DataMixin().get_context_data(title="Авторизация", page_obj=page_obj))
-
-
 class ShowCategory(DataMixin, ListView):
     template_name = "women/index.html"
     context_object_name = "posts"
@@ -101,10 +92,6 @@ class ShowCategory(DataMixin, ListView):
         return context
 
 
-def page_not_found(request, exception):
-    return HttpResponseNotFound("<h1>Страница не найдена</h1>")
-
-
 class ShowPostsBySlug(DataMixin, ListView):
     template_name = "women/index.html"
     context_object_name = "posts"
@@ -119,3 +106,7 @@ class ShowPostsBySlug(DataMixin, ListView):
         tag = get_object_or_404(klass=TagPost, slug=tag_slug)
         context["title"] = f"Тег - {tag.tag}"
         return context
+
+
+def page_not_found(request, exception):
+    return HttpResponseNotFound("<h1>Страница не найдена</h1>")

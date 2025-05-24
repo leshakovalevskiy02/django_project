@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'taggit',
     'debug_toolbar',
     'imagekit',
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
