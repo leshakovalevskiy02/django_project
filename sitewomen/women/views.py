@@ -3,10 +3,11 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from .models import Women, TagPost
-from .forms import AddPostForm, ContactForm, UploadFilesForm
-from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
+from .forms import AddPostForm, ContactForm
+from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView, TemplateView
 from .utils import DataMixin
-
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class HomePage(DataMixin, ListView):
     template_name = "women/index.html"
@@ -17,12 +18,14 @@ class HomePage(DataMixin, ListView):
         "cat_selected":  0
     }
 
+# @login_required(login_url="users:login")
+# def about(request):
+#     return render(request, 'women/about.html', {"title": "О сайте"})
 
-class About(DataMixin, CreateView):
-    form_class = UploadFilesForm
+class About(LoginRequiredMixin, DataMixin, TemplateView):
     template_name = 'women/about.html'
-    success_url = reverse_lazy("home")
     title = "О сайте"
+    # login_url = "users:login"
 
 
 class ShowPost(DataMixin, DetailView):
@@ -42,14 +45,19 @@ class ShowPost(DataMixin, DetailView):
         return get_object_or_404(Women.published, slug=slug)
 
 
-class AddPage(DataMixin, CreateView):
+class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     template_name = "women/addpage.html"
     form_class = AddPostForm
     success_url = reverse_lazy("home")
     title = "Добавить статью"
 
+    def form_valid(self, form):
+        w = form.save(commit=False)
+        w.author = self.request.user
+        return super().form_valid(form)
 
-class UpdatePage(DataMixin, UpdateView):
+
+class UpdatePage(LoginRequiredMixin, DataMixin, UpdateView):
     template_name = "women/addpage.html"
     model = Women
     fields = ["title", "content", "photo", "is_published", "cat"]
@@ -57,7 +65,7 @@ class UpdatePage(DataMixin, UpdateView):
     title = "Редактирование статьи"
 
 
-class DeletePage(DataMixin, DeleteView):
+class DeletePage(LoginRequiredMixin, DataMixin, DeleteView):
     template_name = "women/delete_post.html"
     success_url = reverse_lazy("home")
     context_object_name = "post"

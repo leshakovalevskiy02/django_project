@@ -30,9 +30,3 @@ class ContactForm(forms.Form):
     email = forms.EmailField(label="Ваш email", widget=forms.EmailInput(attrs={"class": "form-label form-error"}),
                              initial="example@mail.ru")
     comment = forms.CharField(widget=forms.Textarea(attrs={"cols": "50", "rows": "5"}), label="Ваш комментарий")
-
-
-class UploadFilesForm(forms.ModelForm):
-    class Meta:
-        model = UploadFiles
-        fields = ["image"]

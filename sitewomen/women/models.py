@@ -7,6 +7,7 @@ from django.core.validators import MinLengthValidator
 from .validators import RussianValidator
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
+from django.contrib.auth import get_user_model
 
 
 class PublishedManager(models.Manager):
@@ -45,6 +46,7 @@ class Women(models.Model):
     tags_taggle = TaggableManager()
     husband = models.OneToOneField("Husband", on_delete=models.SET_NULL, null=True, blank=True,
                                    related_name="woman", verbose_name="Муж")
+    author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name="posts", null=True)
 
     objects = models.Manager()
     published = PublishedManager()
