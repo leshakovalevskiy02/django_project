@@ -141,3 +141,6 @@ SILENCED_SYSTEM_CHECKS = ["security.W019"]
 
 MEDIA_ROOT = Path.joinpath(BASE_DIR, "media")
 MEDIA_URL = "/media/"
+
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "users:login"
