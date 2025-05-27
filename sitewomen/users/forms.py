@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import get_user_model
 
 
@@ -8,26 +8,19 @@ class LoginForm(AuthenticationForm):
     password = forms.CharField(label="Пароль", widget=forms.PasswordInput(attrs={'class': 'form-input'}))
 
 
-class RegistrationForm(forms.ModelForm):
-    username = forms.CharField(label="Логин")
-    password = forms.CharField(label="Пароль", widget=forms.PasswordInput)
-    password2 = forms.CharField(label="Повтор пароля", widget=forms.PasswordInput)
+class RegistrationForm(UserCreationForm):
+    password1 = forms.CharField(label="Пароль", widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+    password2 = forms.CharField(label="Повтор пароля", widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={"class": "form-input"}))
 
     class Meta:
         model = get_user_model()
-        fields = ["username", "email", "first_name", "last_name", "password", "password2"]
-        labels = {
-            "email": "E-mail"
+        fields = ["username", "email", "first_name", "last_name"]
+        widgets = {
+            "username": forms.TextInput(attrs={'class': 'form-input'}),
+            "first_name": forms.TextInput(attrs={'class': 'form-input'}),
+            "last_name": forms.TextInput(attrs={'class': 'form-input'})
         }
-
-    def clean_password2(self):
-        password = self.cleaned_data.get("password")
-        password2 = self.cleaned_data.get("password2")
-
-        if not password or not password2 or password != password2:
-            raise forms.ValidationError(message="Пароли не совпадают")
-
-        return password2
 
     def clean_email(self):
         email = self.cleaned_data["email"]
