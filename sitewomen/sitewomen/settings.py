@@ -145,3 +145,8 @@ MEDIA_URL = "/media/"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "users:login"
 LOGIN_URL = "users:login"
+
+AUTHENTICATION_BACKENDS = [
+    'users.backends.EmailAuthBackend',
+    'django.contrib.auth.backends.ModelBackend'
+]

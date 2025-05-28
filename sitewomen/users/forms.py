@@ -4,20 +4,24 @@ from django.contrib.auth import get_user_model
 
 
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(label="Логин", widget=forms.TextInput(attrs={'class': 'form-input'}))
+    username = forms.CharField(label="Логин или E-mail", widget=forms.TextInput(attrs={'class': 'form-input'}))
     password = forms.CharField(label="Пароль", widget=forms.PasswordInput(attrs={'class': 'form-input'}))
 
 
 class RegistrationForm(UserCreationForm):
     password1 = forms.CharField(label="Пароль", widget=forms.PasswordInput(attrs={'class': 'form-input'}))
     password2 = forms.CharField(label="Повтор пароля", widget=forms.PasswordInput(attrs={'class': 'form-input'}))
-    email = forms.EmailField(widget=forms.EmailInput(attrs={"class": "form-input"}))
 
     class Meta:
         model = get_user_model()
         fields = ["username", "email", "first_name", "last_name"]
+        labels = {
+            'username': 'Логин',
+            "email": "E-mail"
+        }
         widgets = {
             "username": forms.TextInput(attrs={'class': 'form-input'}),
+            "email": forms.EmailInput(attrs={"class": "form-input"}),
             "first_name": forms.TextInput(attrs={'class': 'form-input'}),
             "last_name": forms.TextInput(attrs={'class': 'form-input'})
         }
@@ -29,3 +33,16 @@ class RegistrationForm(UserCreationForm):
             raise forms.ValidationError(message="E-mail не должен совпадать")
 
         return email
+
+
+class ProfileUserForm(forms.ModelForm):
+    username = forms.CharField(disabled=True, label='Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    email = forms.CharField(disabled=True, label='E-mail', widget=forms.EmailInput(attrs={'class': 'form-input'}))
+
+    class Meta:
+        model = get_user_model()
+        fields = ['username', 'email', 'first_name', 'last_name']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-input'}),
+        }
