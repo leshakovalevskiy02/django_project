@@ -1,4 +1,3 @@
-from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, get_object_or_404, render
 from django.urls import reverse, reverse_lazy
@@ -6,7 +5,6 @@ from .models import Women, TagPost
 from .forms import AddPostForm, ContactForm
 from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView, TemplateView
 from .utils import DataMixin
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 class HomePage(DataMixin, ListView):
