@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm
 from django.contrib.auth import get_user_model
+from users.models import Profile
 
 
 class LoginForm(AuthenticationForm):
@@ -38,14 +39,21 @@ class RegistrationForm(UserCreationForm):
 class ProfileUserForm(forms.ModelForm):
     username = forms.CharField(disabled=True, label='Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
     email = forms.CharField(disabled=True, label='E-mail', widget=forms.EmailInput(attrs={'class': 'form-input'}))
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-input'}))
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-input'}))
 
     class Meta:
-        model = get_user_model()
-        fields = ['username', 'email', 'first_name', 'last_name']
-        widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-input'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-input'}),
-        }
+        model = Profile
+        fields = ['date_birthday', 'photo']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        user = self.instance.user
+        self.fields['first_name'].initial = user.first_name
+        self.fields['last_name'].initial = user.last_name
+        self.fields['email'].initial = user.email
+        self.fields['username'].initial = user.username
 
 
 class UserPasswordChangeForm(PasswordChangeForm):

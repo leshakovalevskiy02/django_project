@@ -1,10 +1,13 @@
 from django.contrib.auth.views import (LoginView, PasswordChangeView, PasswordResetView,
                                        PasswordResetConfirmView)
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 from .forms import LoginForm, RegistrationForm, ProfileUserForm, UserPasswordChangeForm
+from django.contrib.auth import get_user_model
+
+from .models import Profile
 
 
 class LoginUser(LoginView):
@@ -22,6 +25,12 @@ class RegistrationUser(CreateView):
     }
     success_url = reverse_lazy("users:registration_done")
 
+    def form_valid(self, form):
+        user = form.save()
+        if user:
+            Profile.objects.create(user=user)
+        return super().form_valid(form)
+
 
 def registration_done(request):
     return render(request, "users/registration_done.html")
@@ -36,7 +45,15 @@ class UserProfile(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy("users:profile")
 
     def get_object(self, queryset=None):
-        return self.request.user
+        return self.request.user.profile
+
+    def form_valid(self, form):
+        cd = form.cleaned_data
+        user = self.object.user
+        user.first_name = cd["first_name"]
+        user.last_name = cd["last_name"]
+        user.save()
+        return super().form_valid(form)
 
 class UserPasswordChangeView(PasswordChangeView):
     template_name = "users/password_change.html"
