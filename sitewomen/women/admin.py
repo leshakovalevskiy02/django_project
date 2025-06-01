@@ -1,6 +1,5 @@
 from django.contrib import admin, messages
 from django.utils.safestring import mark_safe
-
 from .models import Women, Category, TagPost, Husband
 from django.db.models.functions import Length
 from django.db.models import Count, Q
@@ -42,6 +41,7 @@ class MarriedFilter(admin.SimpleListFilter):
             return queryset.filter(husband=None)
         if self.value() == "married":
             return queryset.filter(~Q(husband=None))
+
 
 class AgeFilter(admin.SimpleListFilter):
     title = "Возрастные группы"
@@ -124,6 +124,7 @@ class CategoryAdmin(admin.ModelAdmin):
     @admin.display(description="Количество женщин по категории", ordering="nums")
     def count_women_by_category(self, cat):
         return cat.nums
+
 
 @admin.register(TagPost)
 class TagsAdmin(admin.ModelAdmin):
