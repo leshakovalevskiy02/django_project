@@ -19,12 +19,16 @@
 				<div class="block1">
 					<p class="link-read-post"><a href="{{ p.get_absolute_url }}">Читать пост</a></p>
 				</div>
+				{% if perms.women.change_women %}
 				<div class="block2">
 					<p class="link-edit-post"><a href="{% url 'edit_post' p.slug %}">Редактировать пост</a></p>
 				</div>
+				{% endif %}
+				{% if perms.women.delete_women %}
 				<div class="block3">
 					<p class="link-delete-post"><a href="{% url 'delete_post' p.slug %}">Удалить пост</a></p>
 				</div>
+				{% endif %}
 			</div>
 			</li>
 	{% endfor %}

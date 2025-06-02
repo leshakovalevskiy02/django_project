@@ -5,7 +5,7 @@ from .models import Women, TagPost
 from .forms import AddPostForm, ContactForm
 from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView, TemplateView
 from .utils import DataMixin
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 class HomePage(DataMixin, ListView):
     template_name = "women/index.html"
@@ -43,7 +43,8 @@ class ShowPost(DataMixin, DetailView):
         return get_object_or_404(Women.published, slug=slug)
 
 
-class AddPage(LoginRequiredMixin, DataMixin, CreateView):
+class AddPage(PermissionRequiredMixin, DataMixin, CreateView):
+    permission_required = "women.add_women"
     template_name = "women/addpage.html"
     form_class = AddPostForm
     success_url = reverse_lazy("home")
@@ -55,7 +56,8 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
         return super().form_valid(form)
 
 
-class UpdatePage(LoginRequiredMixin, DataMixin, UpdateView):
+class UpdatePage(PermissionRequiredMixin, DataMixin, UpdateView):
+    permission_required = "women.change_women"
     template_name = "women/addpage.html"
     model = Women
     fields = ["title", "content", "photo", "is_published", "cat"]
@@ -63,7 +65,8 @@ class UpdatePage(LoginRequiredMixin, DataMixin, UpdateView):
     title = "Редактирование статьи"
 
 
-class DeletePage(LoginRequiredMixin, DataMixin, DeleteView):
+class DeletePage(PermissionRequiredMixin, DataMixin, DeleteView):
+    permission_required = "women.delete_women"
     template_name = "women/delete_post.html"
     success_url = reverse_lazy("home")
     context_object_name = "post"
@@ -71,7 +74,7 @@ class DeletePage(LoginRequiredMixin, DataMixin, DeleteView):
     title = "Удаление статьи"
 
 
-class Contact(DataMixin, FormView):
+class Contact(LoginRequiredMixin, DataMixin, FormView):
     form_class = ContactForm
     template_name = "women/contact.html"
     title = "Форма для обратной связи"

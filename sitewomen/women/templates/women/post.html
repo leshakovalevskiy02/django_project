@@ -22,4 +22,7 @@
 
 {{ post.content|linebreaks }}
 
+{% if perms.women.change_women %}
+	<p class="link-edit-post"><a href="{% url 'edit_post' post.slug %}">Редактировать</a></p>
+{% endif %}
 {% endblock %}
