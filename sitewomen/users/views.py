@@ -1,11 +1,12 @@
 from django.contrib.auth.views import (LoginView, PasswordChangeView, PasswordResetView,
                                        PasswordResetConfirmView)
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 from sitewomen import settings
 from .forms import LoginForm, RegistrationForm, ProfileUserForm, UserPasswordChangeForm
+from django.contrib.auth.models import Permission
 
 
 class LoginUser(LoginView):
@@ -23,6 +24,11 @@ class RegistrationUser(CreateView):
     }
     success_url = reverse_lazy("users:registration_done")
 
+    def form_valid(self, form):
+        user = form.save()
+        perm = Permission.objects.get(codename="change_psw_perm")
+        user.user_permissions.add(perm)
+        return super().form_valid(form)
 
 def registration_done(request):
     return render(request, "users/registration_done.html")
@@ -40,7 +46,8 @@ class UserProfile(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
-class UserPasswordChangeView(PasswordChangeView):
+class UserPasswordChangeView(PermissionRequiredMixin, PasswordChangeView):
+    permission_required = "users.change_psw_perm"
     template_name = "users/password_change.html"
     success_url = reverse_lazy("users:password_change_done")
     form_class = UserPasswordChangeForm

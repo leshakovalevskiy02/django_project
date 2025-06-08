@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-vkpr_%3b22=9w95@t@f0ylzgb3d52lsg*@6h31%kguw@o6ai_n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ["sitewomen.ru", '127.0.0.1']
 INTERNAL_IPS = ['127.0.0.1']
 
 # Application definition
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'imagekit',
     'users.apps.UsersConfig',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -73,7 +74,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'sitewomen.context_processors.get_women_context'
+                'sitewomen.context_processors.get_women_context',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -147,6 +150,8 @@ LOGOUT_REDIRECT_URL = "users:login"
 LOGIN_URL = "users:login"
 
 AUTHENTICATION_BACKENDS = [
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.vk.VKOAuth2',
     'users.backends.EmailAuthBackend',
     'django.contrib.auth.backends.ModelBackend'
 ]
@@ -164,3 +169,24 @@ EMAIL_ADMIN = EMAIL_HOST_USER
 
 AUTH_USER_MODEL = 'users.User'
 DEFAULT_USER_IMAGE = MEDIA_URL + 'profile/anonim.png'
+
+SOCIAL_AUTH_GITHUB_KEY = 'Ov23li8cMv36STig8F9E'
+SOCIAL_AUTH_GITHUB_SECRET = 'ff7630773192dae4c2135c62017056f7a373f970'
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'users.pipeline.save_user_data',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+    'users.pipeline.receive_user_data',
+    'users.pipeline.new_users_handler',
+)
+
+SOCIAL_AUTH_VK_OAUTH2_KEY = '53714523'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = 'RAHE6TCiHfeL6DqyNU21'
+SOCIAL_AUTH_VK_OAUTH2_API_VERSION = '5.199'

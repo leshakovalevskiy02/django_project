@@ -20,4 +20,9 @@
     <p ><button type="submit">Сохранить</button></p>
 </form>
 
+{% if perms.users.change_psw_perm %}
+<hr>
+<p ><a href="{% url 'users:password_change' %}">Сменить пароль</a></p>
+{% endif %}
+
 {% endblock %}
