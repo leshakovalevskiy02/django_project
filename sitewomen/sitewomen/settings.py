@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
+    'django.contrib.sites',
     'django_extensions',
     'women.apps.WomenConfig',
     'taggit',
@@ -46,9 +48,12 @@ INSTALLED_APPS = [
     'imagekit',
     'users.apps.UsersConfig',
     'social_django',
+    'captcha'
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "django.middleware.cache.UpdateCacheMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -56,7 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "django.middleware.cache.FetchFromCacheMiddleware",
 ]
 
 ROOT_URLCONF = 'sitewomen.urls'
@@ -89,12 +94,25 @@ WSGI_APPLICATION = 'sitewomen.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "sitewomendb",
+        'USER': 'sitewomen',
+        'PASSWORD': 'sitewomen_test',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+    }
+}
+
+# CACHE_MIDDLEWARE_SECONDS = 10
+# CACHE_MIDDLEWARE_KEY_PREFIX = 'sitewomen'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -162,8 +180,8 @@ EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = 'lesha_programmer02@mail.ru'
 EMAIL_HOST_PASSWORD = '3aj3evlg9JKe97MxcW6Q'
-
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
 
@@ -190,3 +208,5 @@ SOCIAL_AUTH_PIPELINE = (
 SOCIAL_AUTH_VK_OAUTH2_KEY = '53714523'
 SOCIAL_AUTH_VK_OAUTH2_SECRET = 'RAHE6TCiHfeL6DqyNU21'
 SOCIAL_AUTH_VK_OAUTH2_API_VERSION = '5.199'
+
+SITE_ID = 1

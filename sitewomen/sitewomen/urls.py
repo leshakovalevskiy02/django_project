@@ -17,8 +17,18 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from django.views.decorators.cache import cache_page
 from women import views
 from sitewomen import settings
+from django.contrib.sitemaps.views import sitemap
+from women.sitemaps import CategorySitemap, info_dict
+from django.contrib.sitemaps import GenericSitemap
+
+
+sitemaps = {
+    "blog": GenericSitemap(info_dict, priority=0.9, changefreq="daily"),
+    "cats": CategorySitemap
+}
 
 
 urlpatterns = [
@@ -27,6 +37,8 @@ urlpatterns = [
     path('users/', include('users.urls', namespace="users")),
     path('__debug__/', include('debug_toolbar.urls')),
     path("social-auth/", include('social_django.urls', namespace="social")),
+    path('captcha/', include('captcha.urls')),
+    path("sitemap.xml", cache_page(86400)(sitemap), {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap")
 ]
 
 handler404 = views.page_not_found
