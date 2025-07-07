@@ -1,0 +1,12 @@
+{% if comment.children.all %}
+    {% for child in comment.children.all %}
+        <div class="comment-left">
+            <p class="info">
+                Комментарий от {{ child.author.username }} в ответ к
+                {{ child.parent.author }} {{ child.created }}
+            </p>
+            {% include 'women/includes/comment_edit.html' with comment=child %}
+        </div>
+        {% include 'women/post/comment_item.html' with comment=child %}
+    {% endfor %}
+{% endif %}

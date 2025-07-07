@@ -1,0 +1,7 @@
+{{ comment.body|linebreaks }}
+{% if user.is_authenticated %}
+  <a href="{% url 'reply_comment' comment.post.pk comment.pk %}">Ответить</a>
+{% endif %}
+{% if user.username == comment.author.username %}
+  <a href="{% url 'edit_comment' comment.post.pk comment.pk %}">Редактировать</a>
+{% endif %}

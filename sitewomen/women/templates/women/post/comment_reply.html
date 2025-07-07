@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if user.is_authenticated %}
+
+  {% if comment_reply_success %}
+      <h2>Комментарий был успешно добавлен</h2>
+      <p><a href="{{ post.get_absolute_url }}">Вернуться к просмотру поста</a></p>
+  {% else %}
+  <p>Комментарий от пользователя {{ comment.author.username }}</p>
+  <p>Текст комментария - {{ comment.body }}</p>
+  <h3>Комментировать</h3>
+  <form action="" method="post">
+           {% csrf_token %}
+           {{ form.as_p }}
+          <p><input type="submit" value="Отправить комментарий" id="comment-input"></p>
+      </form>
+  {% endif %}
+{% else %}
+    <p> Для комментирования необходимо
+      <a href="{% url 'users:login' %}?next={% url 'post' post.slug %}">авторизоваться</a>
+    </p>
+{% endif %}
+{% endblock %}

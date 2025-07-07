@@ -1,15 +1,17 @@
+from django.views.decorators.http import require_POST
 from sitewomen import settings
 from django.core.mail import EmailMessage
 from django.http import HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.forms import ValidationError
-from .models import Women, TagPost
-from .forms import AddPostForm, ContactForm
+from .models import Women, TagPost, Comment
+from .forms import AddPostForm, ContactForm, CommentForm
 from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView, TemplateView
 from .utils import DataMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.core.cache import cache
+# from django.core.cache import cache
+from django.shortcuts import render
 
 
 class HomePage(DataMixin, ListView):
@@ -21,10 +23,10 @@ class HomePage(DataMixin, ListView):
     }
 
     def get_queryset(self):
-        value = cache.get("women_list")
-        if value is None:
-            value = Women.published.select_related("cat").select_related("author")
-            cache.set("women_list", value, timeout=60)
+        # value = cache.get("women_list")
+        # if value is None:
+        value = Women.published.select_related("cat")
+           # cache.set("women_list", value, timeout=60)
 
         return value
 
@@ -44,6 +46,8 @@ class ShowPost(DataMixin, DetailView):
         post = context["post"]
         context["title"] = post.title
         context["cat_selected"] = post.cat.pk
+        context["comments"] = post.comments.filter(active=True, parent=None)
+        context["form"] = CommentForm()
         return context
 
     def get_object(self, queryset=None):
@@ -142,3 +146,58 @@ class ShowPostsBySlug(DataMixin, ListView):
 
 def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
+
+
+@require_POST
+def post_comment(request, post_id):
+    post = get_object_or_404(Women, pk=post_id, is_published=Women.Status.PUBLISHED)
+    comment = None
+    form = CommentForm(data=request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.post = post
+        comment.author = request.user
+        comment.save()
+    return render(request, 'women/post/comment.html',{'post': post,
+                                                      'form': form, "comment": comment})
+
+
+def reply_comment(request, post_id, comment_id):
+    comment_parent = get_object_or_404(Comment, pk=comment_id)
+    post = get_object_or_404(Women, pk=post_id, is_published=Women.Status.PUBLISHED)
+    comment_reply_success = False
+
+    if request.method == "GET":
+        form = CommentForm()
+    else:
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.parent = comment_parent
+            comment.save()
+            comment_reply_success = True
+        return render(request, "women/post/comment_reply.html",
+                      {"comment_reply_success": comment_reply_success, "post": post})
+    return render(request, "women/post/comment_reply.html",
+                  {"comment": comment_parent, "post": post, "form": form,
+                   "comment_reply_success": comment_reply_success})
+
+def edit_comment(request, post_id, comment_id):
+    comment = get_object_or_404(Comment, pk=comment_id)
+    post = get_object_or_404(Women, pk=post_id, is_published=Women.Status.PUBLISHED)
+    comment_edit_success = False
+
+    if request.method == "GET":
+        form = CommentForm(instance=comment)
+    else:
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            comment_edit_success = True
+        return render(request, "women/post/comment_edit.html",
+                      {"comment_edit_success": comment_edit_success, "post": post})
+    return render(request, "women/post/comment_edit.html",
+                  {"form": form, "comment_edit_success": comment_edit_success,
+                   "post": post})

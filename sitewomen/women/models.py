@@ -123,3 +123,25 @@ class Husband(models.Model):
 
 class UploadFiles(models.Model):
     image = models.FileField(upload_to="uploads_model", verbose_name="Загрузить изображение")
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(Women, on_delete=models.CASCADE, related_name='comments', verbose_name="Название поста")
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="comments", verbose_name="Автор")
+    parent = models.ForeignKey('self', on_delete=models.CASCADE,
+                               null=True, blank=True, related_name='children')
+    body = models.TextField(verbose_name="Комментарий")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    active = models.BooleanField(default=True, verbose_name="Статус")
+
+    class Meta:
+        verbose_name = "Коментарий"
+        verbose_name_plural = "Коментарии"
+        ordering = ['created']
+        indexes = [
+            models.Index(fields=['created']),
+        ]
+
+    def __str__(self):
+        return f'Комментирует {self.author.username} пост {self.post}'

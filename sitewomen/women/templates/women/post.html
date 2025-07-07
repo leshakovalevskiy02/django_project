@@ -25,4 +25,27 @@
 {% if perms.women.change_women %}
 	<p class="link-edit-post"><a href="{% url 'edit_post' post.slug %}">Редактировать</a></p>
 {% endif %}
+
+	{% with comments.count as total_comments %}
+        <h2>{{ total_comments }} comment{{ total_comments|pluralize }}</h2>
+    {% endwith %}
+	{% for comment in comments %}
+        <div class="comment">
+            <p class="info">
+                Комментарий {{ forloop.counter }} от {{ comment.author.username }}
+                {{ comment.created }}
+            </p>
+            {% include 'women/includes/comment_edit.html' %}
+            {% include 'women/post/comment_item.html' %}
+        </div>
+    {% empty %}
+        <p>Комментариев нет</p>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+    {% include 'women/includes/comment_form.html' %}
+    {% else %}
+    <p>Для написания комментариев <a href="{% url 'users:login' %}?next={% url 'post' post.slug %}">авторизуйтесь</a></p>
+    {% endif %}
+
 {% endblock %}

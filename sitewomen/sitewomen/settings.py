@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-vkpr_%3b22=9w95@t@f0ylzgb3d52lsg*@6h31%kguw@o6ai_n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["sitewomen.ru", '127.0.0.1']
+ALLOWED_HOSTS = ["sitewomen.ru", '127.0.0.1', "localhost"]
 INTERNAL_IPS = ['127.0.0.1']
 
 # Application definition
@@ -105,11 +105,17 @@ DATABASES = {
 }
 
 CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
 }
+
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.redis.RedisCache",
+#         "LOCATION": "redis://127.0.0.1:6379",
+#     }
+# }
 
 # CACHE_MIDDLEWARE_SECONDS = 10
 # CACHE_MIDDLEWARE_KEY_PREFIX = 'sitewomen'

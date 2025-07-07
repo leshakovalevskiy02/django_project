@@ -1,6 +1,6 @@
 from captcha.fields import CaptchaField
 from django import forms
-from .models import Women, UploadFiles
+from .models import Women, Comment
 
 
 class AddPostForm(forms.ModelForm):
@@ -32,3 +32,9 @@ class ContactForm(forms.Form):
                              initial="example@mail.ru")
     comment = forms.CharField(widget=forms.Textarea(attrs={"cols": "50", "rows": "5"}), label="Ваш комментарий")
     captcha = CaptchaField(label="Вы не робот?")
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["body"]

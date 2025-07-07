@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if user.is_authenticated %}
+
+  {% if comment_edit_success %}
+      <h2>Комментарий был успешно обновлен</h2>
+      <p><a href="{{ post.get_absolute_url }}">Вернуться к просмотру поста</a></p>
+  {% else %}
+  <h3>Редактировать комментарий</h3>
+  <form action="" method="post">
+           {% csrf_token %}
+           {{ form.as_p }}
+          <p><input type="submit" value="Изменить комментарий" id="comment-input"></p>
+      </form>
+  {% endif %}
+{% else %}
+    <p> Для изменения комментария необходимо
+      <a href="{% url 'users:login' %}?next={% url 'post' post.slug %}">авторизоваться</a>
+    </p>
+{% endif %}
+{% endblock %}

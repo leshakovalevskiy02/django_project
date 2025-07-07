@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 from django.utils.safestring import mark_safe
-from .models import Women, Category, TagPost, Husband
+from .models import Women, Category, TagPost, Husband, Comment
 from django.db.models.functions import Length
 from django.db.models import Count, Q
 
@@ -138,3 +138,10 @@ class HusbandAdmin(admin.ModelAdmin):
     list_display = ("name", "age")
     search_fields = ("name", )
     list_filter = (AgeFilter, )
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['author', 'post', 'created', 'active']
+    list_filter = ['active', 'created', 'updated']
+    search_fields = ['body']
