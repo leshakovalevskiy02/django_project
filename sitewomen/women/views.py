@@ -12,6 +12,7 @@ from .utils import DataMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 # from django.core.cache import cache
 from django.shortcuts import render
+from django.db.models import Count
 
 
 class HomePage(DataMixin, ListView):
@@ -44,10 +45,14 @@ class ShowPost(DataMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         post = context["post"]
+        post_tags = post.tags.all()
+        similar_posts = Women.published.filter(tags__in=post_tags).exclude(pk=post.id)
+        similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-time_update')[:4]
         context["title"] = post.title
         context["cat_selected"] = post.cat.pk
         context["comments"] = post.comments.filter(active=True, parent=None)
         context["form"] = CommentForm()
+        context["similar_posts"] = similar_posts
         return context
 
     def get_object(self, queryset=None):

@@ -3,7 +3,11 @@
         <div class="comment-left">
             <p class="info">
                 Комментарий от {{ child.author.username }} в ответ к
-                {{ child.parent.author }} {{ child.created }}
+                {{ child.parent.author }}
+                {{ child.updated|timesince }} назад
+                {% if child.created != child.updated %}
+                    (изменено)
+                {% endif %}
             </p>
             {% include 'women/includes/comment_edit.html' with comment=child %}
         </div>

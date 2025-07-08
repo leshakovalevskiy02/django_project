@@ -23,8 +23,17 @@
 {{ post.content|linebreaks }}
 
 {% if perms.women.change_women %}
+
 	<p class="link-edit-post"><a href="{% url 'edit_post' post.slug %}">Редактировать</a></p>
 {% endif %}
+<div style="clear: both;"></div>
+
+<h2>Похожие статьи</h2>
+    {% for post in similar_posts %}
+        <p><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></p>
+    {% empty %}
+        Похожих постов нет.
+    {% endfor %}
 
 	{% with comments.count as total_comments %}
         <h2>{{ total_comments }} comment{{ total_comments|pluralize }}</h2>
@@ -33,7 +42,10 @@
         <div class="comment">
             <p class="info">
                 Комментарий {{ forloop.counter }} от {{ comment.author.username }}
-                {{ comment.created }}
+                {{ comment.updated|timesince }} назад
+                {% if comment.created != comment.updated %}
+                    (изменено)
+                {% endif %}
             </p>
             {% include 'women/includes/comment_edit.html' %}
             {% include 'women/post/comment_item.html' %}

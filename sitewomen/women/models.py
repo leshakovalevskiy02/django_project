@@ -42,7 +42,8 @@ class Women(models.Model):
     is_published = models.IntegerField(default=Status.PUBLISHED, choices=Status.choices, verbose_name="Статус")
     cat = models.ForeignKey("Category", on_delete=models.PROTECT, related_name="posts",
                             related_query_name="where_posts", verbose_name="Категории")
-    tags = models.ManyToManyField('TagPost', blank=True, related_name="tags", verbose_name="Тэги")
+    tags = models.ManyToManyField('TagPost', blank=True, related_name="tags", verbose_name="Тэги",
+                                  related_query_name="tags")
     tags_taggle = TaggableManager()
     husband = models.OneToOneField("Husband", on_delete=models.SET_NULL, null=True, blank=True,
                                    related_name="woman", verbose_name="Муж")
