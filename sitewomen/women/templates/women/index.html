@@ -1,6 +1,21 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block content %}
+{% include 'women/search/form_search.html' %}
+
+{% if query %}
+    <h1>
+        Посты по вашему запросу "{{ query }}"
+    </h1>
+    <h3>
+        {% with posts.count as total_results %}
+            Найдено {{ total_results }}
+			{{ total_results|pluralize_ru:"результат,результата,результатов" }}
+		{% endwith %}
+    </h3>
+{% endif %}
+
 <ul class="list-articles">
 	{% for p in posts %}
 			<li>
@@ -31,6 +46,13 @@
 				{% endif %}
 			</div>
 			</li>
+	{% empty %}
+		<p>Нет результатов по вашему запросу. Вернуться к
+			{% if param %}
+				<a href="{% url route_name param %}">
+			{% else %}
+				<a href="{% url route_name %}">
+			{% endif %}просмотру статей</a></p>
 	{% endfor %}
 </ul>
 {% endblock %}

@@ -5,31 +5,28 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.forms import ValidationError
-from .models import Women, TagPost, Comment
+from .models import Women, TagPost, Comment, Category
 from .forms import AddPostForm, ContactForm, CommentForm
 from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView, TemplateView
-from .utils import DataMixin
+from .utils import DataMixin, SearchFieldMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-# from django.core.cache import cache
 from django.shortcuts import render
 from django.db.models import Count
 
 
-class HomePage(DataMixin, ListView):
+class HomePage(DataMixin, SearchFieldMixin, ListView):
     template_name = "women/index.html"
     context_object_name = 'posts'
     title = "Главная страница"
     extra_context = {
         "cat_selected":  0
     }
+    paginate_by = 10
 
     def get_queryset(self):
-        # value = cache.get("women_list")
-        # if value is None:
-        value = Women.published.select_related("cat")
-           # cache.set("women_list", value, timeout=60)
-
-        return value
+        query = self.request.GET.get("query")
+        queryset = Women.published.select_related("cat").select_related("author")
+        return self.calculate_similarity(query, queryset)
 
 
 class About(LoginRequiredMixin, DataMixin, TemplateView):
@@ -116,36 +113,44 @@ class Contact(LoginRequiredMixin, DataMixin, FormView):
             return self.form_invalid(form)
 
 
-class ShowCategory(DataMixin, ListView):
+class ShowCategory(DataMixin, SearchFieldMixin, ListView):
     template_name = "women/index.html"
     context_object_name = "posts"
-    allow_empty = False
+    allow_empty = True
 
     def get_queryset(self):
+        query = self.request.GET.get("query")
         cat_slug = self.kwargs["cat_slug"]
-        return Women.published.filter(cat__slug=cat_slug).select_related("cat").select_related("author")
+        queryset = Women.published.filter(cat__slug=cat_slug).select_related("cat").select_related("author")
+        return self.calculate_similarity(query, queryset)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        category = context["posts"][0].cat
+        category = Category.objects.get(slug=self.kwargs["cat_slug"])
         context["title"] = f"Рубрика: {category.name}"
         context["cat_selected"] = category.pk
+        context["has_param"] = True
+        context["param"] = category.slug
+        print(context)
         return context
 
 
-class ShowPostsBySlug(DataMixin, ListView):
+class ShowPostsBySlug(DataMixin, SearchFieldMixin, ListView):
     template_name = "women/index.html"
     context_object_name = "posts"
 
     def get_queryset(self):
         tag_slug = self.kwargs["tag_slug"]
-        return Women.published.filter(tags__slug=tag_slug).select_related("cat")
+        query = self.request.GET.get("query")
+        queryset = Women.published.filter(tags__slug=tag_slug).select_related("cat").select_related("author")
+        return self.calculate_similarity(query, queryset)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         tag_slug = self.kwargs["tag_slug"]
         context = super().get_context_data(**kwargs)
         tag = get_object_or_404(klass=TagPost, slug=tag_slug)
         context["title"] = f"Тег - {tag.tag}"
+        context["param"] = tag.slug
         return context
 
 

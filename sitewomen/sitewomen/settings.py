@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'imagekit',
     'users.apps.UsersConfig',
     'social_django',
-    'captcha'
+    'captcha',
+    'django.contrib.postgres',
 ]
 
 MIDDLEWARE = [
