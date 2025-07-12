@@ -1,19 +1,43 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.views import (LoginView, PasswordChangeView, PasswordResetView,
                                        PasswordResetConfirmView)
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.core.mail import send_mail
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, UpdateView
 from sitewomen import settings
 from .forms import LoginForm, RegistrationForm, ProfileUserForm, UserPasswordChangeForm
 from django.contrib.auth.models import Permission
+import uuid
 
+
+def send_mail_to_email(request, user, token):
+    verification_link = request.build_absolute_uri(
+        reverse('users:verify_email', args=[token]))
+    send_mail(
+        'Подтвердите ваш email',
+        f'Для подтверждения email перейдите по ссылке: {verification_link}',
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        fail_silently=False,
+    )
 
 class LoginUser(LoginView):
     template_name = "users/login.html"
     extra_context = {"title": "Авторизация"}
     form_class = LoginForm
     redirect_authenticated_user = True
+
+    def form_valid(self, form):
+        user = form.get_user()
+        if not user.email_verified:
+            token = uuid.uuid4()
+            user.verification_token = token
+            user.save()
+            send_mail_to_email(self.request, user, token)
+            return redirect("users:confirm_email")
+        return super().form_valid(form)
 
 
 class RegistrationUser(CreateView):
@@ -22,13 +46,30 @@ class RegistrationUser(CreateView):
     extra_context = {
         "title": "Регистрация"
     }
-    success_url = reverse_lazy("users:registration_done")
+    success_url = reverse_lazy("users:confirm_email")
 
     def form_valid(self, form):
-        user = form.save()
+        get_user_model().objects.filter(email=form.cleaned_data["email"]).delete()
+        user = form.save(commit=False)
+        token = uuid.uuid4()
+        user.verification_token = token
+        user.save()
+        send_mail_to_email(self.request, user, token)
         perm = Permission.objects.get(codename="change_psw_perm")
         user.user_permissions.add(perm)
         return super().form_valid(form)
+
+
+def verify_email(request, token):
+    user = get_object_or_404(get_user_model(), verification_token=token)
+    user.email_verified = True
+    user.save()
+    return redirect("users:registration_done")
+
+
+def confirm_email(request):
+    return render(request, "users/confirm_email.html")
+
 
 def registration_done(request):
     return render(request, "users/registration_done.html")
@@ -62,3 +103,8 @@ class UserPasswordResetView(PasswordResetView):
 class UserPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = "users/password_reset_confirm.html"
     success_url = reverse_lazy("users:password_reset_complete")
+
+    def form_valid(self, form):
+        user = form.save()
+        user.email_verified = True
+        return super().form_valid(form)
