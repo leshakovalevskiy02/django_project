@@ -6,12 +6,13 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.forms import ValidationError
 from .models import Women, TagPost, Comment, Category
-from .forms import AddPostForm, ContactForm, CommentForm
+from .forms import AddPostForm, ContactForm, CommentForm, UpdatePostForm
 from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView, TemplateView
 from .utils import DataMixin, SearchFieldMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.shortcuts import render
+from django.shortcuts import render, redirect, reverse
 from django.db.models import Count
+from django.contrib import messages
 
 
 class HomePage(DataMixin, SearchFieldMixin, ListView):
@@ -21,7 +22,7 @@ class HomePage(DataMixin, SearchFieldMixin, ListView):
     extra_context = {
         "cat_selected":  0
     }
-    paginate_by = 10
+    paginate_by = 6
 
     def get_queryset(self):
         query = self.request.GET.get("query")
@@ -72,9 +73,9 @@ class AddPage(PermissionRequiredMixin, DataMixin, CreateView):
 
 class UpdatePage(PermissionRequiredMixin, DataMixin, UpdateView):
     permission_required = "women.change_women"
-    template_name = "women/addpage.html"
+    template_name = "women/edit_page.html"
     model = Women
-    fields = ["title", "content", "photo", "is_published", "cat"]
+    form_class = UpdatePostForm
     success_url = reverse_lazy("home")
     title = "Редактирование статьи"
 
@@ -131,7 +132,6 @@ class ShowCategory(DataMixin, SearchFieldMixin, ListView):
         context["cat_selected"] = category.pk
         context["has_param"] = True
         context["param"] = category.slug
-        print(context)
         return context
 
 
@@ -168,6 +168,9 @@ def post_comment(request, post_id):
         comment.post = post
         comment.author = request.user
         comment.save()
+        messages.success(request, "Комментарий успешно добавлен.")
+        url = reverse("post", args=(post.slug,))
+        return redirect(url)
     return render(request, 'women/post/comment.html',{'post': post,
                                                       'form': form, "comment": comment})
 
@@ -175,7 +178,6 @@ def post_comment(request, post_id):
 def reply_comment(request, post_id, comment_id):
     comment_parent = get_object_or_404(Comment, pk=comment_id)
     post = get_object_or_404(Women, pk=post_id, is_published=Women.Status.PUBLISHED)
-    comment_reply_success = False
 
     if request.method == "GET":
         form = CommentForm()
@@ -187,27 +189,24 @@ def reply_comment(request, post_id, comment_id):
             comment.author = request.user
             comment.parent = comment_parent
             comment.save()
-            comment_reply_success = True
-        return render(request, "women/post/comment_reply.html",
-                      {"comment_reply_success": comment_reply_success, "post": post})
+            messages.success(request, "Ответ на комментарий успешно добавлен.")
+            url = reverse("post", args=(post.slug,))
+            return redirect(url)
     return render(request, "women/post/comment_reply.html",
-                  {"comment": comment_parent, "post": post, "form": form,
-                   "comment_reply_success": comment_reply_success})
+                  {"comment": comment_parent, "post": post, "form": form})
+
 
 def edit_comment(request, post_id, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     post = get_object_or_404(Women, pk=post_id, is_published=Women.Status.PUBLISHED)
-    comment_edit_success = False
-
     if request.method == "GET":
         form = CommentForm(instance=comment)
     else:
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
             form.save()
-            comment_edit_success = True
-        return render(request, "women/post/comment_edit.html",
-                      {"comment_edit_success": comment_edit_success, "post": post})
+            messages.success(request, "Комментарий успешно изменен.")
+            url = reverse("post", args=(post.slug,))
+            return redirect(url)
     return render(request, "women/post/comment_edit.html",
-                  {"form": form, "comment_edit_success": comment_edit_success,
-                   "post": post})
+                  {"form": form, "post": post})

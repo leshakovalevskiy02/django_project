@@ -7,6 +7,6 @@
 <form method="post">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">Да, удалить</button>
-    <a href="{{ post.get_absolute_url }}" class="btn btn-secondary">Отмена</a>
+    <a href="{{ post.get_absolute_url }}" class="btn btn-success">Вернуться к посту</a>
 </form>
 {% endblock %}

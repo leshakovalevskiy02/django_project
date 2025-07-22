@@ -2,23 +2,37 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-
-  {% if comment_reply_success %}
-      <h2>Комментарий был успешно добавлен</h2>
-      <p><a href="{{ post.get_absolute_url }}">Вернуться к просмотру поста</a></p>
-  {% else %}
-  <p>Комментарий от пользователя {{ comment.author.username }}</p>
-  <p>Текст комментария - {{ comment.body }}</p>
-  <h3>Комментировать</h3>
-  <form action="" method="post">
-           {% csrf_token %}
-           {{ form.as_p }}
-          <p><input type="submit" value="Отправить комментарий" id="comment-input"></p>
-      </form>
-  {% endif %}
+    <p>Комментарий от пользователя: <span class="fw-bold">{{ comment.author.username }}</span></p>
+    <p>Текст комментария:</p>
+    <div class="fw-bold border p-2" style="max-height: 200px; overflow-y: auto; word-break: break-all;">
+        {{ comment.body }}
+    </div>
+    <h3 class="mt-2">Комментировать</h3>
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="invalid-feedback">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% for field in form %}
+            <div class="mb-3 row">
+                <label class="col-sm-2 col-form-label form-check-label" for="{{ field.id_for_label }}">{{ field.label_tag }}</label>
+                {{ field }}
+                <div class="invalid-feedback">
+                    {% for error in f.errors %}
+                        <p class="mb-0">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+        <input class="btn btn-success" type="submit" value="Отправить комментарий">
+    </form>
 {% else %}
-    <p> Для комментирования необходимо
-      <a href="{% url 'users:login' %}?next={% url 'post' post.slug %}">авторизоваться</a>
+    <p class="mt-3">
+        <span class="bg-warning">Для комментирования необходимо
+            <a href="{% url 'users:login' %}?next={% url 'post' post.slug %}">авторизоваться</a>
+        </span>
     </p>
 {% endif %}
 {% endblock %}

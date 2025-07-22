@@ -5,15 +5,31 @@
 
 <form action="" method="post">
     {% csrf_token %}
-    <div class="form-error">{{ form.non_field_errors }}</div>
-        {% for f in form %}
-        <p><label class="form-label" for="{{ f.id_for_label }}">{{ f.label_tag }}</label>{{ f }}</p>
-        <div class="form-error"> {{ f.errors }} </div>
+    <div class="invalid-feedback">
+        {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
         {% endfor %}
-    <button type="submit">Войти</button>
+    </div>
+    {% for f in form %}
+        <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label form-check-label" for="{{ f.id_for_label }}">{{ f.label_tag }}</label>
+            <div class="col col-10">
+                {{ f }}
+            </div>
+            <div class="invalid-feedback">
+                {% for error in f.errors %}
+                    <p class="mb-0">{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    <button class="btn btn-success" type="submit">Войти</button>
 </form>
 
-<p><a href="{% url 'users:password_reset' %}">Забыли пароль?</a></p>
+<p class="mt-2">
+    <a class="me-2" href="{% url 'users:registration' %}">Зарегистрироваться</a>
+    <a href="{% url 'users:password_reset' %}">Забыли пароль?</a>
+</p>
 
 <hr>
 <a href="{% url 'social:begin' 'github' %}"><img src="/media/social-auth/github.png" alt=""></a>

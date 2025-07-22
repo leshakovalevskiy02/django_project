@@ -1,15 +1,12 @@
 {% if comment.children.all %}
     {% for child in comment.children.all %}
-        <div class="comment-left">
-            <p class="info">
-                Комментарий от {{ child.author.username }} в ответ к
-                {{ child.parent.author }}
-                {{ child.updated|timesince }} назад
-                {% if child.created != child.updated %}
-                    (изменено)
-                {% endif %}
+        <div class="ms-5">
+            <p class="mt-2 text-dark">
+                <img class="rounded-circle" width="30" src="{{ child.author.thumbnail.url }}">
+                <span class="fw-bold">{{ child.author.username }}</span>
+                <span class="text-secondary">{{ child.created|timesince }} назад</span>
             </p>
-            {% include 'women/includes/comment_edit.html' with comment=child %}
+            {% include 'women/includes/comment_edit.html' with comment=child reply=True %}
         </div>
         {% include 'women/post/comment_item.html' with comment=child %}
     {% endfor %}

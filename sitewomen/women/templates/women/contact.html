@@ -4,14 +4,27 @@
     <h1>{{ title }}</h1>
     <form action="" method="post">
         {% csrf_token %}
-        <div class="form-error">{{ form.non_field_errors }}</div>
+        <div class="invalid-feedback">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
         {% for f in form %}
-        <p><label class="form-label" for="{{ f.id_for_label }}">{{ f.label_tag }}</label> {{ f }}</p>
-        <div class="form-error"> {{ f.errors }} </div>
+        <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label form-check-label" for="{{ f.id_for_label }}">{{ f.label_tag }}</label>
+            <div class="col col-10">
+                {{ f }}
+            </div>
+            <div class="invalid-feedback">
+                {% for error in f.errors %}
+                    <p class="mb-0">{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
         {% endfor %}
         <p>
-            <button type="submit">Отправить</button>
-            <button class="js-captcha-refresh" type="button">Сменить капчу</button>
+            <button class="btn btn-success" type="submit">Отправить</button>
+            <button class="btn btn-info js-captcha-refresh" type="button">Сменить капчу</button>
         </p>
     </form>
 

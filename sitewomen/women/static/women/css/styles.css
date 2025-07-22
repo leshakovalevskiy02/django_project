@@ -485,6 +485,6 @@ ul.lang-list li a:hover {color: #fdc073;}
     text-transform: uppercase;
 }
 
-.comment-left {
-    margin: 0 60px;
+.invalid-feedback {
+  display: block !important;
 }

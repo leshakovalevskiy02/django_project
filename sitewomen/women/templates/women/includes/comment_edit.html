@@ -1,7 +1,20 @@
-{{ comment.body|linebreaks }}
+{% load static %}
+<div class="mb-1" style="max-height: 200px; overflow-y: auto; word-break: break-all;">
+    {% if reply %}
+        <span class="fw-bold">{{ comment.parent.author }}</span>,
+    {% endif %}
+    {{ comment.body }}
+</div>
+{% if comment.created != comment.updated %}
+    <p class="text-secondary fw-light fst-italic">Изменен {{ comment.updated|timesince }} назад</p>
+{% endif %}
 {% if user.is_authenticated %}
-  <a href="{% url 'reply_comment' comment.post.pk comment.pk %}">Ответить</a>
+  <a class="btn btn-light text-decoration-none" href="{% url 'reply_comment' comment.post.pk comment.pk %}">
+      <img width="20" src="{% static 'women/images/reply.png' %}" alt="Ответить"> Ответить
+  </a>
 {% endif %}
 {% if user.username == comment.author.username %}
-  <a href="{% url 'edit_comment' comment.post.pk comment.pk %}">Редактировать</a>
+  <a class="btn btn-light text-decoration-none text-dark" href="{% url 'edit_comment' comment.post.pk comment.pk %}">
+      <img width="20" src="{% static 'women/images/edit.png' %}" alt="Редактировать">  Редактировать
+  </a>
 {% endif %}

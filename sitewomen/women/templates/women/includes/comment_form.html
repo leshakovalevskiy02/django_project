@@ -1,6 +1,22 @@
 <h2>Добавить комментарий</h2>
-	<form action="{% url 'post_comment' post.id %}" method="post">
-		 {% csrf_token %}
-		 {{ form.as_p }}
-		<p><input type="submit" value="Отправить комментарий" id="comment-input"></p>
-	</form>
+
+<form class="needs-validation" action="{% url 'post_comment' post.id %}" method="post">
+	{% csrf_token %}
+	<div class="invalid-feedback">
+        {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+	{% for field in form %}
+	<div class="mb-3 row">
+		<label class="col-sm-2 col-form-label form-check-label" for="{{ field.id_for_label }}">{{ field.label_tag }}</label>
+		{{ field }}
+		<div class="invalid-feedback">
+			{% for error in f.errors %}
+				<p class="mb-0">{{ error }}</p>
+			{% endfor %}
+		</div>
+	</div>
+	{% endfor %}
+	<input class="btn btn-success" type="submit" value="Отправить комментарий">
+</form>

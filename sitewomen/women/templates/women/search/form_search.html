@@ -1,4 +1,6 @@
-<form action="" method="GET" style="display: flex; align-items: center; gap: 10px;">
-    {{ search_form.as_p }}
-    <input type="submit" value="Поиск" id="comment-input">
+<form class="d-flex my-3" method="GET" action="" novalidate>
+    {% for f in search_form %}
+        {{ f }}
+    {% endfor %}
+    <button class="btn btn-outline-success" type="submit">Поиск</button>
 </form>

@@ -1,79 +1,128 @@
 {% extends 'base.html' %}
 {% load custom_filters %}
+{% load static %}
 
 {% block content %}
 {% include 'women/search/form_search.html' %}
 
 {% if query %}
-    <h1>
-        Посты по вашему запросу "{{ query }}"
-    </h1>
-    <h3>
-        {% with posts.count as total_results %}
-            Найдено {{ total_results }}
-			{{ total_results|pluralize_ru:"результат,результата,результатов" }}
+	<h2>Посты по вашему запросу "{{ query }}"</h2>
+    <h4>
+		{% with posts.count as total_results %}
+		Найдено {{ total_results }}
+		{{ total_results|pluralize_ru:"результат,результата,результатов" }}
 		{% endwith %}
-    </h3>
+	</h4>
 {% endif %}
 
-<ul class="list-articles">
+<div class="row row-cols-1 row-cols-md-3 g-4">
 	{% for p in posts %}
-			<li>
-				<div class="article-panel">
-         			<p class="first">Категория: {{p.cat}} | Автор поста - {{ p.author.username|default:"неизвестен" }} </p>
-         			<p class="last">Дата: {{p.time_update|date:"d.m.Y H:i:s"}}</p>
-				</div>
-				<h2>{{p.title}}</h2>
-				{% if p.photo %}
-					<p><img class="img-article-left thumb" src="{{ p.thumbnail.url }}"></p>
-				{% endif %}
-    {% autoescape off %}
-	{{ p.content|linebreaks|truncatewords:40 }}
-    {% endautoescape %}
-			<div class="clear flex">
-				<div class="block1">
-					<p class="link-read-post"><a href="{{ p.get_absolute_url }}">Читать пост</a></p>
-				</div>
-				{% if perms.women.change_women %}
-				<div class="block2">
-					<p class="link-edit-post"><a href="{% url 'edit_post' p.slug %}">Редактировать пост</a></p>
-				</div>
-				{% endif %}
-				{% if perms.women.delete_women %}
-				<div class="block3">
-					<p class="link-delete-post"><a href="{% url 'delete_post' p.slug %}">Удалить пост</a></p>
-				</div>
-				{% endif %}
-			</div>
-			</li>
-	{% empty %}
-		<p>Нет результатов по вашему запросу. Вернуться к
-			{% if param %}
-				<a href="{% url route_name param %}">
-			{% else %}
-				<a href="{% url route_name %}">
-			{% endif %}просмотру статей</a></p>
-	{% endfor %}
-</ul>
+    	<div class="col">
+    		<div class="card h-100 shadow-sm">
+        		<div class="card-header bg-light">
+        			<div class="d-flex justify-content-between align-items-center small">
+          				<span>Категория: {{ p.cat }}</span>
+          				<span>{{ p.time_update|date:"d.m.Y H:i:s" }}</span>
+        			</div>
+					<div class="text-muted small mt-1">
+						Автор: {{ p.author.username|default:"неизвестен" }}
+					</div>
+      			</div>
+
+      			<div class="card-body">
+        			<h5 class="card-title">{{ p.title }}</h5>
+
+        			{% if p.photo %}
+        				<div class="mb-3 text-center">
+							<img
+								src="{{ p.thumbnail.url }}"
+								class="img-fluid rounded"
+								alt="{{ p.title }}"
+								style="max-height: 200px; object-fit: cover;">
+        				</div>
+					{% else %}
+					    <div class="mb-3 text-center">
+							<img
+								src="{% static 'women/images/placeholder300.jpg' %}"
+								class="img-fluid rounded"
+								alt="Нет фотографии"
+								style="max-height: 200px; object-fit: cover;">
+        				</div>
+        			{% endif %}
+
+        			<div class="card-text">
+          				{% autoescape off %}
+							{{ p.content|linebreaks|truncatewords:40 }}
+						{% endautoescape %}
+        			</div>
+      			</div>
+
+      			<div class="card-footer bg-white border-0 py-3">
+        			<div class="d-flex justify-content-between align-items-center">
+          				<div>
+            				<a href="{{ p.get_absolute_url }}" class="btn btn-sm btn-outline-primary">
+              					Читать пост
+            				</a>
+							{% if perms.women.change_women %}
+							<a href="{% url 'edit_post' p.slug %}" class="btn btn-sm btn-outline-success">
+              					Редактировать пост
+            				</a>
+							{% endif %}
+							{% if perms.women.delete_women %}
+							<a href="{% url 'delete_post' p.slug %}" class="btn btn-sm btn-outline-danger">
+              					Удалить пост
+            				</a>
+							{% endif %}
+          				</div>
+					</div>
+      			</div>
+    		</div>
+  		</div>
+    {% empty %}
+		<div class="col-12">
+    		<div class="alert alert-info text-center">
+      			<p>Нет результатов по вашему запросу. Вернуться к
+        		{% if param %}
+          			<a href="{% url route_name param %}" class="alert-link">
+        		{% else %}
+          			<a href="{% url route_name %}" class="alert-link">
+        		{% endif %}просмотру статей</a></p>
+    		</div>
+  		</div>
+  	{% endfor %}
+</div>
 {% endblock %}
 
 {% block navigation %}
-<nav class="list-pages">
-    <ul>
+<nav class="m-5">
+	<ul class="pagination justify-content-center">
 		{% if is_paginated %}
 			{% if page_obj.has_previous %}
-				<li class="page-num"><a href="?page={{ page_obj.previous_page_number }}">&lt;</a></li>
+				<li class="page-item">
+					<a class="page-link" href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+				</li>
 			{% endif %}
-        	{% for p in elided_page_range %}
+
+			{% for p in elided_page_range %}
 				{% if page_obj.number == p or p == paginator.ELLIPSIS %}
-					<li class="page-num page-num-selected">{{ p }}</li>
+					<li class="page-item active">
+						<span class="page-link">
+							{{ p }}
+						</span>
+					</li>
 				{% else %}
-					<li class="page-num"><a href="?page={{ p }}">{{ p }}</a></li>
+					<li class="page-item">
+						<a class="page-link" href="?page={{ p }}">{{ p }}</a>
+					</li>
 				{% endif %}
         	{% endfor %}
+
 			{% if page_obj.has_next %}
-				<li class="page-num"><a href="?page={{ page_obj.next_page_number }}">&gt;</a></li>
+				<li class="page-item">
+					<a class="page-link" href="?page={{ page_obj.next_page_number }}">Следующая</a>
+				</li>
 			{% endif %}
+
 		{% endif %}
     </ul>
 </nav>

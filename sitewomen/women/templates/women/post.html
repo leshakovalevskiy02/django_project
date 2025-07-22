@@ -1,65 +1,82 @@
 {% extends 'base.html' %}
 {% load custom_filters %}
-
-{% block breadcrumbs %}
-{% with post.tags.all as tags %}
-{% if tags %}
-<ul class="tags-list">
-    <li>Теги:</li>
-    {% for tag in tags %}
-	<li><a href="{{ tag.get_absolute_url }}">{{ tag }} </a></li>
-	{% endfor %}
-</ul>
-{% endif %}
-{% endwith %}
-{% endblock %}
+{% load static %}
 
 {% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% with post.tags.all as tags %}
+{% if tags %}
+    Теги:
+    {% for tag in tags %}
+        <span class="badge text-bg-info">
+            <a class="fs-6" href="{{ tag.get_absolute_url }}" style="color: white; text-decoration:none;">{{ tag }}</a>
+        </span>
+	{% endfor %}
+{% endif %}
+{% endwith %}
+
 <h1>{{post.title}}</h1>
 
-{% if post.photo %}
-	<p ><img class="img-article-left" src="{{ post.thumbnail.url }}"></p>
-{% endif %}
 
-{{ post.content|linebreaks }}
+<div class="row">
+    <div class="col col-12">
+        {% if post.photo %}
+	        <img class="float-start me-3 mb-3 rounded" src="{{ post.thumbnail.url }}">
+        {% else %}
+            <img class="float-start me-3 mb-3 rounded" src="{% static 'women/images/placeholder300.jpg' %}" alt="">
+        {% endif %}
+        {{ post.content|linebreaks }}
+    </div>
+</div>
+
 
 {% if perms.women.change_women %}
-
-	<p class="link-edit-post"><a href="{% url 'edit_post' post.slug %}">Редактировать</a></p>
+	<p class="btn btn-success"><a class="text-decoration-none text-light" href="{% url 'edit_post' post.slug %}">Редактировать</a></p>
 {% endif %}
-<div style="clear: both;"></div>
 
 <h2>Похожие статьи</h2>
-    {% for post in similar_posts %}
-        <p><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></p>
-    {% empty %}
-        Похожих постов нет.
-    {% endfor %}
+{% for post in similar_posts %}
+    <p class="border-1">
+        <a class="text-decoration-none text-warning" href="{{ post.get_absolute_url }}">
+            <img width="30" src="{{ post.thumbnail.url }}" alt="{{ post.title }}"> {{ post.title }}</a>
+    </p>
+{% empty %}
+    <span class="text-danger">Похожих постов нет.</span>
+{% endfor %}
 
 	{% with comments.count as total_comments %}
         <h2>{{ total_comments }}
             {{ total_comments|pluralize_ru:"комментарий,комментария,комментариев" }}</h2>
     {% endwith %}
 	{% for comment in comments %}
-        <div class="comment">
-            <p class="info">
-                Комментарий {{ forloop.counter }} от {{ comment.author.username }}
-                {{ comment.updated|timesince }} назад
-                {% if comment.created != comment.updated %}
-                    (изменено)
-                {% endif %}
+        <div>
+            <p class="mt-2 text-dark">
+                <img class="rounded-circle" width="30" src="{{ comment.author.thumbnail.url }}">
+                <span class="fw-bold">{{ comment.author.username }}</span>
+                <span class="text-secondary">{{ comment.updated|timesince }} назад</span>
             </p>
             {% include 'women/includes/comment_edit.html' %}
             {% include 'women/post/comment_item.html' %}
         </div>
     {% empty %}
-        <p>Комментариев нет</p>
+        <span class="text-danger">Комментариев нет</span>
     {% endfor %}
 
     {% if user.is_authenticated %}
-    {% include 'women/includes/comment_form.html' %}
+        {% include 'women/includes/comment_form.html' %}
     {% else %}
-    <p>Для написания комментариев <a href="{% url 'users:login' %}?next={% url 'post' post.slug %}">авторизуйтесь</a></p>
+        <p class="mt-3"><span class="bg-warning">Для написания комментариев
+            <a href="{% url 'users:login' %}?next={% url 'post' post.slug %}">авторизуйтесь</a>
+            </span>
+        </p>
     {% endif %}
 
 {% endblock %}

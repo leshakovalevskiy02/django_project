@@ -3,10 +3,5 @@
 {% block title %}Добавление комментария{% endblock %}
 
 {% block content %}
-    {% if comment %}
-    <h2>Комментарий был успешно добавлен</h2>
-    <p><a href="{{ post.get_absolute_url }}">Вернуться к просмотру поста</a></p>
-    {% else %}
-        {% include "women/includes/comment_form.html" %}
-    {% endif %}
+    {% include "women/includes/comment_form.html" %}
 {% endblock %}

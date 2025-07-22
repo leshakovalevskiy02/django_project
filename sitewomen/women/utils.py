@@ -7,7 +7,7 @@ from django.urls import resolve
 class DataMixin(ContextMixin):
     extra_context = {}
     title = None
-    paginate_by = 4
+    paginate_by = 3
 
     def __init__(self):
         if self.title is not None:

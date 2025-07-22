@@ -1,7 +1,9 @@
 {% for category in cats %}
     {% if category.id == cat_selected %}
-        <li class="selected">{{ category.name }}</li>
+        <li class="list-group-item list-group-item-dark">{{ category.name }}</li>
     {% else %}
-        <li><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></li>
+        <li class="list-group-item">
+            <a class="text-decoration-none" href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+        </li>
     {% endif %}
 {% endfor %}

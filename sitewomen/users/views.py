@@ -2,17 +2,22 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.views import (LoginView, PasswordChangeView, PasswordResetView,
                                        PasswordResetConfirmView)
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib import messages
 from django.core.mail import send_mail
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, UpdateView
+
 from sitewomen import settings
-from .forms import LoginForm, RegistrationForm, ProfileUserForm, UserPasswordChangeForm
-from django.contrib.auth.models import Permission
+from .forms import (LoginForm, RegistrationForm, ProfileUserForm, UserPasswordChangeForm, CustomPasswordResetForm,
+                    CustomSetPasswordForm)
 import uuid
 
 
-def send_mail_to_email(request, user, token):
+def send_mail_to_email(request, user):
+    token = uuid.uuid4()
+    user.verification_token = token
+    user.save()
     verification_link = request.build_absolute_uri(
         reverse('users:verify_email', args=[token]))
     send_mail(
@@ -20,7 +25,7 @@ def send_mail_to_email(request, user, token):
         f'Для подтверждения email перейдите по ссылке: {verification_link}',
         settings.DEFAULT_FROM_EMAIL,
         [user.email],
-        fail_silently=False,
+        fail_silently=True
     )
 
 class LoginUser(LoginView):
@@ -32,11 +37,14 @@ class LoginUser(LoginView):
     def form_valid(self, form):
         user = form.get_user()
         if not user.email_verified:
-            token = uuid.uuid4()
-            user.verification_token = token
-            user.save()
-            send_mail_to_email(self.request, user, token)
+            send_mail_to_email(self.request, user)
             return redirect("users:confirm_email")
+
+        remember_me = form.cleaned_data["remember_me"]
+        if not remember_me:
+            self.request.session.set_expiry(0)
+            self.request.session.modified = True
+
         return super().form_valid(form)
 
 
@@ -51,13 +59,14 @@ class RegistrationUser(CreateView):
     def form_valid(self, form):
         get_user_model().objects.filter(email=form.cleaned_data["email"]).delete()
         user = form.save(commit=False)
-        token = uuid.uuid4()
-        user.verification_token = token
-        user.save()
-        send_mail_to_email(self.request, user, token)
-        perm = Permission.objects.get(codename="change_psw_perm")
-        user.user_permissions.add(perm)
+        send_mail_to_email(self.request, user)
         return super().form_valid(form)
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect("home")
+
+        return super().dispatch(request, *args, **kwargs)
 
 
 def verify_email(request, token):
@@ -93,16 +102,22 @@ class UserPasswordChangeView(PermissionRequiredMixin, PasswordChangeView):
     success_url = reverse_lazy("users:password_change_done")
     form_class = UserPasswordChangeForm
 
+    def form_valid(self, form):
+        messages.success(self.request, message="Пароль был успешно изменен")
+        return super().form_valid(form)
+
 
 class UserPasswordResetView(PasswordResetView):
     template_name = "users/password_reset_form.html"
     email_template_name = "users/password_reset_email.html"
     success_url = reverse_lazy("users:password_reset_done")
+    form_class = CustomPasswordResetForm
 
 
 class UserPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = "users/password_reset_confirm.html"
     success_url = reverse_lazy("users:password_reset_complete")
+    form_class = CustomSetPasswordForm
 
     def form_valid(self, form):
         user = form.save()
